@@ -3,6 +3,8 @@ const nn = ml5.neuralNetwork({ task: 'classification', debug: true });
 
 const trainButton = document.getElementById('train');
 const input = document.getElementById('data');
+const accuracyButton = document.getElementById('accuracy');
+const accuracyResultElement = document.getElementById('accuracyResult');
 
 let trainingData = null;
 let testingData = null;
@@ -34,13 +36,17 @@ trainButton.addEventListener('click', () => {
     nn.train({ epochs: 100 }, () => finishedTraining())
 });
 
+accuracyButton.addEventListener('click', () => {
+    if (!testingData) return;
+
+    let correctCount = 0;
+    testingData.forEach(async (item) => {
+        const prediction = await nn.classify(item.points);
+        if (prediction[0].label === item.label) correctCount++;
+        accuracyResultElement.innerText = `Model accuracy is ${correctCount / testingData.length * 100}%`
+    })
+});
+
 async function finishedTraining(){
     nn.save("model", () => console.log("model was saved!"));
-    const blob = new Blob([JSON.stringify(testingData)], {type: 'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'testing-data.json';
-    a.click();
-    URL.revokeObjectURL(url);
 }
