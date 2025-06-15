@@ -1,7 +1,6 @@
 import { HandLandmarker, FilesetResolver, DrawingUtils } from "@mediapipe/tasks-vision";
 
 const enableWebcamButton = document.getElementById("webcamButton")
-const logButton = document.getElementById("logButton")
 
 const video = document.getElementById("webcam")
 const canvasElement = document.getElementById("output_canvas")
@@ -21,6 +20,7 @@ const trainButtons = [
 
 const clearDataButton = document.getElementById('clearData');
 const dataSummaryElement = document.getElementById('dataSummary');
+const downloadButton = document.getElementById('download');
 
 /********************************************************************
  // CREATE THE POSE DETECTOR
@@ -90,7 +90,7 @@ trainButtons.forEach((button) => {
 
 function addTrainingData(data) {
     const existingData = localStorage.getItem('training-data');
-    const trainingData = existingData ? JSON.parse(existingData) : []
+    const trainingData = existingData ? JSON.parse(existingData) : [];
     trainingData.push(data);
     trainingData.sort(() => Math.random() - 0.5);
     localStorage.setItem('training-data', JSON.stringify(trainingData));
@@ -109,15 +109,28 @@ function showDataSummary(data) {
         return;
     }
     const counts = data.reduce((result, item) => {
-        result[item.label] = (result[item.label] || 0) + 1
+        result[item.label] = (result[item.label] || 0) + 1;
         return result;
     }, {});
     let text = '';
     Object.keys(counts).forEach((key) => {
-        text += `${key}: ${counts[key]} times\n`
+        text += `${key}: ${counts[key]} times\n`;
     });
     dataSummaryElement.innerText = text;
 }
+
+downloadButton.addEventListener('click', () => {
+    const existingData = localStorage.getItem('training-data');
+    const trainingData = existingData ? JSON.parse(existingData) : [];
+    if (trainingData.length === 0) return;
+    const blob = new Blob([JSON.stringify(trainingData.sort(() => Math.random() - 0.5))], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'training-data.json';
+    a.click();
+    URL.revokeObjectURL(url);
+});
 
 /********************************************************************
  // START THE APP
