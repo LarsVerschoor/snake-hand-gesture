@@ -1,0 +1,36 @@
+body {
+    font-family: sans-serif;
+    margin: 2em;
+    color: #3d3d3d;
+}
+
+p {
+    margin:2px;
+}
+
+textarea {
+    font-size:0.7em;
+}
+
+button {
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+section {
+    margin: 1em 0;
+}
+
+video {
+    display: block;
+    max-width: 300px;
+    max-height: 300px;
+    transform: rotateY(180deg);
+    border: 2px solid #000000;
+    border-bottom: none;
+}
+
+canvas {
+    display: block;
+    border: 2px solid #000000;
+}

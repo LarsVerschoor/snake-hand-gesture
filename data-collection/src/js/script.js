@@ -33,7 +33,7 @@ const createHandLandmarker = async () => {
             delegate: "GPU"
         },
         runningMode: "VIDEO",
-        numHands: 2
+        numHands: 1
     });
     console.log("model loaded, you can start webcam")
 
