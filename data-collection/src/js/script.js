@@ -6,6 +6,7 @@ const video = document.getElementById("webcam")
 const canvasElement = document.getElementById("output_canvas")
 const canvasCtx = canvasElement.getContext("2d")
 
+const logButton = document.getElementById("logButton")
 const drawUtils = new DrawingUtils(canvasCtx)
 let handLandmarker = undefined;
 let webcamRunning = false;
@@ -38,6 +39,7 @@ const createHandLandmarker = async () => {
     console.log("model loaded, you can start webcam")
 
     enableWebcamButton.addEventListener("click", (e) => enableCam(e))
+    logButton.addEventListener("click", (e) => logAllHands(e))
 }
 
 /********************************************************************
@@ -131,6 +133,15 @@ downloadButton.addEventListener('click', () => {
     a.click();
     URL.revokeObjectURL(url);
 });
+
+/********************************************************************
+ // LOG HAND COORDINATES IN THE CONSOLE
+ ********************************************************************/
+function logAllHands(){
+    for (let hand of results.landmarks) {
+        console.log(hand)
+    }
+}
 
 /********************************************************************
  // START THE APP
