@@ -12,8 +12,6 @@ let handLandmarker = undefined;
 let webcamRunning = false;
 let results = undefined;
 
-let image = document.querySelector("#myimage")
-
 const trainButtons = [
     {label: 'up', element: document.getElementById('addUp')},
     {label: 'down', element: document.getElementById('addDown')},
@@ -22,6 +20,7 @@ const trainButtons = [
 ]
 
 const clearDataButton = document.getElementById('clearData');
+const dataSummaryElement = document.getElementById('dataSummary');
 
 /********************************************************************
  // CREATE THE POSE DETECTOR
@@ -39,7 +38,6 @@ const createHandLandmarker = async () => {
     console.log("model loaded, you can start webcam")
 
     enableWebcamButton.addEventListener("click", (e) => enableCam(e))
-    logButton.addEventListener("click", (e) => logAllHands(e))
 }
 
 /********************************************************************
@@ -69,12 +67,6 @@ async function enableCam() {
 async function predictWebcam() {
     results = await handLandmarker.detectForVideo(video, performance.now())
 
-    let hand = results.landmarks[0]
-    if(hand) {
-        let thumb = hand[4]
-        image.style.transform = `translate(${video.videoWidth - thumb.x * video.videoWidth}px, ${thumb.y * video.videoHeight}px)`
-    }
-
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     for(let hand of results.landmarks){
         drawUtils.drawConnectors(hand, HandLandmarker.HAND_CONNECTIONS, { color: "#00FF00", lineWidth: 5 });
@@ -83,16 +75,6 @@ async function predictWebcam() {
 
     if (webcamRunning) {
         window.requestAnimationFrame(predictWebcam)
-    }
-}
-
-/********************************************************************
- // LOG HAND COORDINATES IN THE CONSOLE
- ********************************************************************/
-function logAllHands(){
-    for (let hand of results.landmarks) {
-        // console.log(hand)
-        console.log(hand[4])
     }
 }
 
@@ -110,13 +92,32 @@ function addTrainingData(data) {
     const existingData = localStorage.getItem('training-data');
     const trainingData = existingData ? JSON.parse(existingData) : []
     trainingData.push(data);
+    trainingData.sort(() => Math.random() - 0.5);
     localStorage.setItem('training-data', JSON.stringify(trainingData));
+    showDataSummary(trainingData);
 }
 
 clearDataButton.addEventListener('click', () => {
     localStorage.removeItem('training-data');
+    showDataSummary([])
     console.log('TRAINING DATA CLEARED')
 });
+
+function showDataSummary(data) {
+    if (data.length === 0) {
+        dataSummaryElement.innerText = 'NO DATA';
+        return;
+    }
+    const counts = data.reduce((result, item) => {
+        result[item.label] = (result[item.label] || 0) + 1
+        return result;
+    }, {});
+    let text = '';
+    Object.keys(counts).forEach((key) => {
+        text += `${key}: ${counts[key]} times\n`
+    });
+    dataSummaryElement.innerText = text;
+}
 
 /********************************************************************
  // START THE APP
